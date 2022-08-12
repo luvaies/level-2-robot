@@ -13,6 +13,7 @@ Library             RPA.Browser.Selenium
 Library             RPA.HTTP
 Library             RPA.Tables
 Library             RPA.PDF
+Library             RPA.Archive
 
 
 *** Variables ***
@@ -29,7 +30,8 @@ Minimal task
 
 Order robots from RobotSpareBin Industries Inc
     Open the intranet website order site
-    Fill form to order all the robots from the CSV file
+    # Fill form to order all the robots from the CSV file
+    Create a ZIP file of the receipts
 
 
 *** Keywords ***
@@ -85,8 +87,11 @@ Embed the robot screenshot to the receipt PDF file
     [Arguments]    ${fqfn_image}    ${fqfn_pdf}
     ${list}=    Create List    ${fqfn_image}:align=center
     Open Pdf    ${fqfn_pdf}
-    Add Files To Pdf    ${list}    ${fqfn_pdf}
+    Add Files To Pdf    ${list}    ${fqfn_pdf}    append=True
     Close pdf    ${fqfn_pdf}
+
+Create a ZIP file of the receipts
+    Archive Folder With Zip    ${receipt_folder}    ${receipt_folder}receips.zip    recursive=False
 
 Submit button to preview the robot
     Click Button    preview
