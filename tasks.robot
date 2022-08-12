@@ -19,7 +19,8 @@ Library             RPA.PDF
 ${ORDERS_FILE_URL}      https://robotsparebinindustries.com/orders.csv
 ${ORDER_PAGE_URL}       https://robotsparebinindustries.com/#/robot-order
 
-${receipt_folder}       receipt
+${receipt_folder}       ${OUTPUT_DIR}${/}receipts${/}
+${screenshot_folder}    ${receipt_folder}screenshot${/}
 
 
 *** Tasks ***
@@ -54,32 +55,38 @@ Fill form to order all the robots from the CSV file
         Wait Until Keyword Succeeds    5x    1s    Submit The Order
         ${pdf}=    Store the receipt as a PDF file    ${row}[Order number]
         ${screenshot}=    Take a screenshot of the Robot    ${row}[Order number]
-        # Embed the robot screenshot to the receipt PDF file    ${screenshot}    ${pdf}
+        Embed the robot screenshot to the receipt PDF file    ${screenshot}    ${pdf}
         Submit another robot order
     END
 
 Store the receipt as a PDF file
     [Arguments]    ${pdf_file_name}
     ${receipt_html}=    Get Element Attribute    id:receipt    outerHTML
-    Set Local Variable    ${fqfn_pdf}    ${OUTPUT_DIR}${/}receipts${/}${pdf_file_name}.pdf
+    Set Local Variable    ${fqfn_pdf}    ${receipt_folder}${pdf_file_name}.pdf
     Html To Pdf    ${receipt_html}    ${fqfn_pdf}
 
     RETURN    ${fqfn_pdf}
 
 Submit the order
-    # Wait Until Keyword Succeeds    20x    1.5s    Click button    order
-    # IF    not    Page Should Contain Element    id:receipt
-    # Click button    order
-    # #Do not generate screenshots if the test fails
-    # Mute Run On Failure    Page Should Contain Element
-
-    # Submit the order. If we have a receipt, then all is well
     Click button    order
     Page Should Contain Element    id:receipt
 
 Take a screenshot of the robot
     [Arguments]    ${image_file_name}
-    ${preview_robot_image_html}=    Get Element Attribute    id:robot-preview-image    outerHTML
+    Set Local Variable    ${id_robot_preview_image}    id:robot-preview-image
+    Set Local Variable    ${fqfn_image}    ${screenshot_folder}${image_file_name}.jpg
+
+    Wait Until Element Is Visible    ${id_robot_preview_image}
+    Screenshot    ${id_robot_preview_image}    ${fqfn_image}
+    # ${preview_robot_image_html}=    Get Element Attribute    ${id_robot_preview_image}    outerHTML
+    RETURN    ${fqfn_image}
+
+Embed the robot screenshot to the receipt PDF file
+    [Arguments]    ${fqfn_image}    ${fqfn_pdf}
+    ${list}=    Create List    ${fqfn_image}:align=center
+    Open Pdf    ${fqfn_pdf}
+    Add Files To Pdf    ${list}    ${fqfn_pdf}
+    Close pdf    ${fqfn_pdf}
 
 Submit button to preview the robot
     Click Button    preview
