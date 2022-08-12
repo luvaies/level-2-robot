@@ -15,3 +15,7 @@ temp/
 testrun/*
 .~lock*
 *.pkl
+orders.csv
+log.html
+output.xml
+report.html
