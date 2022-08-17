@@ -14,6 +14,7 @@ Library             RPA.HTTP
 Library             RPA.Tables
 Library             RPA.PDF
 Library             RPA.Archive
+Library             RPA.Dialogs
 
 
 *** Variables ***
@@ -22,6 +23,7 @@ ${ORDER_PAGE_URL}       https://robotsparebinindustries.com/#/robot-order
 
 ${receipt_folder}       ${OUTPUT_DIR}${/}receipts${/}
 ${screenshot_folder}    ${receipt_folder}screenshot${/}
+${orders_file_name}     orders.csv
 
 
 *** Tasks ***
@@ -29,8 +31,9 @@ Minimal task
     Log    Done.
 
 Order robots from RobotSpareBin Industries Inc
+    ${orders_file}=    Download order file
     Open the intranet website order site
-    # Fill form to order all the robots from the CSV file
+    Fill form to order all the robots from the CSV file    ${orders_file}
     Create a ZIP file of the receipts
 
 
@@ -47,8 +50,10 @@ Fill one robot order form
     Input Text    address    ${address}
 
 Fill form to order all the robots from the CSV file
-    Download    ${ORDERS_FILE_URL}    overwrite=True
-    ${table}=    Read table from CSV    orders.csv    header=True
+    [Arguments]    ${orders_file}
+    # Download    ${ORDERS_FILE_URL}    overwrite=True
+    # Download order file
+    ${table}=    Read table from CSV    ${orders_file}    header=True
     FOR    ${row}    IN    @{table}
         Accept constitutional rights
         Fill one robot order form    ${row}[Head]    ${row}[Body]    ${row}[Legs]    ${row}[Address]
@@ -101,7 +106,18 @@ Submit another robot order
 
 Download order file
     [Documentation]    Downloads the file from the fixed URL.
-    Download    ${ORDERS_FILE_URL}    overwrite=True
+    [Arguments]    ${timeout}=180    &{options}
+    # Download    ${ORDERS_FILE_URL}    overwrite=True
+
+    Add icon    warning
+    Add heading    "hello, show the the url to the receipt files"
+    Add text input    "URL to receipt file"
+    ${url_to_receipt_file}=    Run dialog
+    Log To Console    ${url_to_receipt_file}["URL to receipt file"]
+
+    # be carefull with this, only works, because the file has the same name as espected.
+    Download    ${url_to_receipt_file}["URL to receipt file"]    overwrite=True    target_file=${orders_file_name}
+    RETURN    ${orders_file_name}
 
 Open the intranet website order site
     Open Available Browser    ${ORDER_PAGE_URL}

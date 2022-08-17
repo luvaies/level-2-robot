@@ -8,9 +8,9 @@ dependencies:
   # Installation will be faster and more efficient.
   # https://anaconda.org/search
   - python=3.9.13
-
   - pip=22.1.2
   - pip:
       # Define pip packages here.
       # https://pypi.org/
+      - pywebview[qt]==3.6.3
       - rpaframework==15.6.0 # https://rpaframework.org/releasenotes.html
