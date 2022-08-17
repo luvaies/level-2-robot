@@ -115,7 +115,7 @@ Download order file
     ${url_to_receipt_file}=    Run dialog
     Log To Console    ${url_to_receipt_file}["URL to receipt file"]
 
-    # be carefull with this, only works, because the file has the same name as espected.
+    # be carefull with this, only works, because the file has the same name as expected.
     Download    ${url_to_receipt_file}["URL to receipt file"]    overwrite=True    target_file=${orders_file_name}
     RETURN    ${orders_file_name}
 
