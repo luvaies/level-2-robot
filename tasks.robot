@@ -15,6 +15,7 @@ Library             RPA.Tables
 Library             RPA.PDF
 Library             RPA.Archive
 Library             RPA.Dialogs
+Library             RPA.Robocorp.Vault
 
 
 *** Variables ***
@@ -116,8 +117,16 @@ Download order file
     Log To Console    ${url_to_receipt_file}["URL to receipt file"]
 
     # be carefull with this, only works, because the file has the same name as expected.
-    Download    ${url_to_receipt_file}["URL to receipt file"]    overwrite=True    target_file=${orders_file_name}
+
+    # Download    ${url_to_receipt_file}["URL to receipt file"]    overwrite=True    target_file=${orders_file_name}
+    Download    ${ORDERS_FILE_URL}
     RETURN    ${orders_file_name}
 
 Open the intranet website order site
-    Open Available Browser    ${ORDER_PAGE_URL}
+    # Open Available Browser    ${ORDER_PAGE_URL}
+
+    # to configure a secret needs to follow the instructions in https://robocorp.com/docs/development-guide/variables-and-secrets/vault
+    # create vault.json somewhere (the vault)
+    # create devdata/env.json, and set the key "RPA_SECRET_FILE": "path_to/vault.json"
+    ${secret}=    Get Secret    credentials
+    Open Available Browser    ${secret}[URL]
